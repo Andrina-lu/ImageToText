@@ -59,7 +59,7 @@ def background(choice: str, origin, width, height) -> Image.Image:
         opacity = float(choice[-1]) / 10
         canvas = origin.resize((width, height), Image.BICUBIC).filter(ImageFilter.GaussianBlur(25))
         canvas = np.array(canvas)
-        canvas = np.uint8(canvas[:,:,:-1] * opacity)
+        canvas = np.uint8(canvas[:,:,0:3] * opacity)
         return Image.fromarray(canvas)
 
 

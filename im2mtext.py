@@ -11,7 +11,7 @@ parser.add_argument('-C', '--charlist', default='@W#$OEXC[(/?=^~_.` ',
                     help='character list used to print the output "image"')
 parser.add_argument('-H', '--height', type=int, default=100,
                     help='number of text lines in the output (default=100)')
-parser.add_argument('-E', '--equalize', type=bool, action='store_true',
+parser.add_argument('-E', '--equalize', action='store_true',
                     help='equalize the histogram')
 
 
@@ -35,19 +35,30 @@ def im2char(im, charlist, dsize):
     return '\r\n'.join(output)
 
 
-if __name__ == '__main__':
-    path = Path('harbour.jpg')
+def main():
+    args = parser.parse_args(['ywy.jpg', '-E'])
+    charlist = args.charlist
+
+    path = Path(args.filename)
     im = cv2.imread(str(path))
     im = cv2.cvtColor(im, cv2.COLOR_RGB2GRAY)
-    im = cv2.equalizeHist(im)
-    imshow(im)
+    if args.equalize:
+        im = cv2.equalizeHist(im)
+    
     height, width, *_ = im.shape
-    charlist = '@W#$OEXC[(/?=^~_.` '
-    output_height = 100
+    output_height = args.height
     output_width = round(width * 1.865 * output_height / height)
     # output_height = round(height / 1.865 * output_width / width)
     output = im2char(im, charlist, (output_width, output_height))
-    path = path.with_suffix('.txt')
+    if args.equalize:
+        path = path.with_name(path.stem + '_eq.txt')
+    else:
+        path = path.with_suffix('.txt')
     with path.open('w') as f:
         f.write(output)
-    print(f'Output size: {output_width}x{output_height}')
+        print(f'Output: {path.name}')
+    # print(f'Output size: {output_width}x{output_height}')
+
+
+if __name__ == '__main__':
+    main()
